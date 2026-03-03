@@ -1,0 +1,167 @@
+---
+title: "FJP"
+subtitle: "Ciência e Tecnologia"
+author:
+  name: "Coordenação de Indicadores Socias"
+  affiliation: "Diretoria de Estatística e Informações"
+  address: "Alameda das acácias, 70 - São Luiz"
+  city: "Belo Horizonte"
+  state: "Minas Gerais"
+  postal_code: "31.275-150"
+  url: "https://fjp.mg.gov.br"
+lang: pt
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+description: "Relatório condendo uma análise descritiva e os resultados de crítica de dados"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: false
+    df_print: kable
+    fig_caption: true
+    table_caption: true
+    embed-resources: true
+    smooth-scroll: true
+    toc-location: left
+    toc-title: MENU
+    theme: journal
+editor: visual
+execute:
+  echo: false
+  warning: false
+  error: false
+  message: false
+params:
+  data: file.rds
+output-file: "report_ct.html"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+```{r set_year}
+# Inserir aqui apenas aquelas variáveis que possuem alguma restrição 
+# no ano inicial de análise devido a fatores como mudança de metodologia
+# ano_base_alter <- c(
+#   "MA_ICMSECOLOG" = 2010
+# )
+
+# Remover os comentários para utilizar este trecho caso não haja nenhuma restrição
+# para nenhuma variável
+ano_base_alter <- c(
+  "NA" = NA_integer_
+)
+
+exclusions_years = list(
+  "NA" = NA_integer_
+)
+```
+
+```{r import_data}
+k <- 1.10
+
+lista_dt <- lapply(params$data,readRDS)
+dados <- names(lista_dt)|> 
+  sapply(function(i){
+    variables <- unique(lista_dt[[i]]$nome_especificacao)
+    lista_dt[[i]] <- lista_dt[[i]] |>
+      dplyr::mutate(valor = as.numeric(valor)) |>
+      tidyr::pivot_wider(names_from = nome_especificacao, values_from = valor) |>
+      dplyr::mutate(ano = as.character(ano))
+    return(lista_dt[[i]])
+  },simplify = FALSE, USE.NAMES = TRUE)
+
+
+```
+
+# Análise descritiva
+
+As tabelas a seguir apresentam um resumo descritivo dos indicadores analisados, fornecendo uma visão abrangente das características dos dados. Os cálculos foram realizados em função do ano. As informações inclusas abrangem:
+
+-   **Quantidade de Valores (N):** Indica o número total de observações presentes no conjunto de dados para cada indicador.
+
+-   **Valor Mínimo:** Representa o menor valor observado para o indicador.
+
+-   **Valor da Média:** Indica a média aritmética dos valores do indicador, fornecendo uma medida central da tendência dos dados.
+
+-   **Valor da Mediana:** Representa o valor que divide o conjunto de dados ordenados em duas metades de igual tamanho, sendo útil para lidar com casos com *outliers*.
+
+-   **Valor Máximo:** Indica o maior valor observado para o indicador.
+
+-   **Desvio Padrão (D.P.):** Mede a dispersão dos dados em relação à média, quantificando a variabilidade presente no conjunto.
+
+-   **Coeficiente de Variação (C.V.):** Expressa a razão entre o desvio padrão e a média, em porcentagem, fornecendo uma medida relativa da dispersão dos dados em relação à média.
+
+-   **Quantidade de Zeros:** Indica o número de observações com valor igual a zero para o indicador.
+
+-   **Quantidade de Dados Ausentes:** Representa o número de observações com valores ausentes para o indicador.
+
+**Observações Importantes:**
+
+-   A análise de *outliers* (valores atípicos) não foi realizada nesta tabela descritiva. Para uma avaliação mais completa da qualidade dos dados, recomenda-se a análise de *outliers* e a verificação de possíveis inconsistências nos valores apresentados anteriormente neste documento.
+
+-   A interpretação das medidas descritivas deve ser feita em conjunto com o conhecimento do contexto dos indicadores e dos objetivos da análise.
+
+Ao analisar esta tabela, é possível obter uma compreensão inicial das características dos dados, identificando padrões, tendências e possíveis discrepâncias. As informações aqui apresentadas servem como base para análises estatísticas mais aprofundadas, auxiliando na tomada de decisões e na formulação de conclusões relevantes.
+
+```{r show_desc_table, results='asis'}
+#| column: screen-inset-right
+
+pander::pandoc.header("Descritiva", level = 2)
+for (i in names(dados)) {
+  pander::pandoc.header(i, level = 3)
+    variables <- unique(lista_dt[[i]]$nome_especificacao)
+    # Loop para mostrar os resultados por variável
+    for (var in variables) {
+      pander::pandoc.header(var, level = 4)
+      pander::pandoc.table(
+        descriptiveanalisys(variable = var, data = dados[[i]]),
+        decimal.mark = ",", 
+        big.mark     = ".", 
+        round        = 2,
+        split.table  = Inf
+      )
+      cat("\\pagebreak\n")
+    }
+}
+
+# names(dados) |>
+#   sapply(function(i){
+#     pander::pandoc.header(i, level = 3)
+#     variables <- unique(lista_dt[[i]]$nome_especificacao)
+#     # Loop para mostrar os resultados por variável
+#     for (var in variables) {
+#       pander::pandoc.header(var, level = 4)
+#       pander::pandoc.table(
+#         descriptiveanalisys(variable = var, data = dados[[i]]),
+#         decimal.mark = ",", 
+#         big.mark     = ".", 
+#         round        = 2,
+#         split.table  = Inf
+#       )
+#       cat("\\pagebreak\n")
+#     }
+#   }, simplify = FALSE, USE.NAMES = F)
+
+```
+
+```{r show_boxplot_chart, results='asis'}
+#| out-width: 100%
+#| fig-format: svg
+pander::pandoc.header("Gráfico de caixa (boxplot)", level = 2)
+
+for (i in names(dados)) {
+    pander::pandoc.header(i, level = 3)
+    variables <- unique(lista_dt[[i]]$nome_especificacao)
+    # Loop para mostrar os resultados por variável
+    for(var in variables){
+      pander::pandoc.header(var, level = 4)
+      print(chart_boxplot(variable = var, data = dados[[i]], ano_base_alter))
+      cat("\\pagebreak\n")
+    }
+  }
+
+```
