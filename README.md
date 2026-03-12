@@ -7,8 +7,10 @@
 
 <!-- badges: end -->
 
-The goal of dataedittecnology is help the João Pinheiro Fundation to do
-data analysis and quality.
+The dataedittecnology package ainms to facilitate data manipulation,
+analysis and report generation, with a focus on applications related to
+data editing. Iwas developed to support researchers and analysts at the
+João Pinheiro Fundation (FJP) and the broader community.
 
 ## Installation
 
@@ -18,12 +20,14 @@ GitHub with:
 ``` r
 # Install the 'remotes' package if you haven't already
 install.packages("remotes")
+
+# Install the 'dataedittecnology' package
 remotes::install_github("FundacaoJoaoPinheiro/dataedittecnology")
 ```
 
-## Example
+## Usage Example
 
-This is a basic example which shows you how to execute the package:
+This is a basic example which shows you how to solve a common problem:
 
 ``` r
 ## basic example code

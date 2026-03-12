@@ -109,6 +109,8 @@ Ao analisar esta tabela, é possível obter uma compreensão inicial das caracte
 
 ```{r show_desc_table, results='asis'}
 #| column: screen-inset-right
+#| fig-format: svg
+#| out-width: 100%
 
 pander::pandoc.header("Descritiva", level = 2)
 for (i in names(dados)) {
@@ -124,6 +126,7 @@ for (i in names(dados)) {
         round        = 2,
         split.table  = Inf
       )
+      print(chart_boxplot(variable = var, data = dados[[i]], ano_base_alter))
       cat("\\pagebreak\n")
     }
 }
@@ -131,9 +134,9 @@ for (i in names(dados)) {
 
 ```
 
-```{r show_boxplot_chart, results='asis'}
-#| out-width: 100%
+```{r show_boxplot_chart, eval=FALSE, include=FALSE, results='asis'}
 #| fig-format: svg
+#| out-width: 100%
 pander::pandoc.header("Gráfico de caixa (boxplot)", level = 2)
 
 for (i in names(dados)) {
