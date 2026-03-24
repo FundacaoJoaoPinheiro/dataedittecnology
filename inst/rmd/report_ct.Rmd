@@ -391,7 +391,7 @@ for (i in names(df_sumario)) {
 ```{r excel_create_wb}
 
 ## Criar pasta de trabalho
-pt <- openxlsx::createWorkbook()
+#pt <- openxlsx::createWorkbook()
 path_data <- system.file("data", "cidades.xlsx", package = "dataedittecnology")
 cidades <- openxlsx::read.xlsx(path_data)
 
@@ -461,25 +461,27 @@ df_obs_valid <- names(df_rules_valid_na)|>
 index <- sapply(df_obs_valid, nrow)!=0
 df_obs_valid <- df_obs_valid[index]
 
-for(i in names(df_obs_valid)){
-  nom <- gsub(".*[([:upper:])]_", "", i)
-    #gsub("[([:upper:])_]", "", i)
-  #nom <- sub("[_(mun|br|regint|uf)]+$", "", nom)
-  openxlsx::addWorksheet(pt, paste0("NA-", nom))
-  openxlsx::writeData(pt, paste0("NA-", nom), df_obs_valid[[nom]])
-}
+nom <- gsub(".*[([:upper:])]_", "val_", names(df_obs_valid))
+names(df_obs_valid) <- nom
+
 
 # for(i in names(df_obs_valid)){
-#   openxlsx::addWorksheet(pt, paste0("valid - ", i))
-#   openxlsx::writeData(pt, paste0("valid - ", i), df_obs_valid[[i]])
+#   nom <- gsub(".*[([:upper:])]_", "", i)
+#     #gsub("[([:upper:])_]", "", i)
+#   #nom <- sub("[_(mun|br|regint|uf)]+$", "", nom)
+#   openxlsx::addWorksheet(pt, paste0("NA-", nom))
+#   openxlsx::writeData(pt, paste0("NA-", nom), df_obs_valid[[nom]])
 # }
+
+
 
 ```
 
 
 ```{r excel_save_wb}
+#openxlsx::saveWorkbook(pt, "ct_violacoes.xlsx", overwrite = T)
+openxlsx::write.xlsx(df_obs_valid, "ct_violacoes.xlsx", overwrite = T)
 
-openxlsx::saveWorkbook(pt, "ct_violacoes.xlsx", overwrite = T)
 ```
 
 ```{r clean_env, results='hide'}
