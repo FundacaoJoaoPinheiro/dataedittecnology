@@ -482,7 +482,7 @@ for (i in names(df_sumario)) {
 
 ```
 
-```{r show_table_valid_locations_rules, results='asis'}
+```{r table_locations_rules, results='asis'}
 #| column: screen-inset-right
 
 codigos <- data.frame(codigos_uf= as.character(cod_uf),uf = names(cod_uf), check.rows = F,row.names = NULL)
