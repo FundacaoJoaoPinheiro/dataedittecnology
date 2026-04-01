@@ -260,7 +260,7 @@ for (i in names(df_sumario)) {
 ```
 
 
-```{r data_wrangling_valid_all}
+```{r data_manipulation_valid_all}
 ### Valores Positivos
 df_rules_valid_pos <- names(dados) |>
    sapply(function(i){
