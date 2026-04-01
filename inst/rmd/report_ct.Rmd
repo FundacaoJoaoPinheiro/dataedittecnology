@@ -58,7 +58,38 @@ ano_base_alter <- c(
 exclusions_years = list(
   "NA" = NA_integer_
 )
+
+cod_uf <- c(
+  "RO" = 11, 
+  "AC" = 12, 
+  "AM" = 13, 
+  "RR" = 14, 
+  "PA" = 15, 
+  "AP" = 16, 
+  "TO" = 17, 
+  "MA" = 21, 
+  "PI" = 22, 
+  "CE" = 23, 
+  "RN" = 24, 
+  "PB" = 25, 
+  "PE" = 26, 
+  "AL" = 27, 
+  "SE" = 28, 
+  "BA" = 29, 
+  "MG" = 31, 
+  "ES" = 32, 
+  "RJ" = 33, 
+  "SP" = 35, 
+  "PR" = 41, 
+  "SC" = 42, 
+  "RS" = 43, 
+  "MS" = 50, 
+  "MT" = 51, 
+  "GO" = 52, 
+  "DF" = 53)
 ```
+
+
 
 ```{r import_data}
 fator <- 1.15
@@ -74,6 +105,16 @@ dados <- names(lista_dt)|>
     return(lista_dt[[i]])
   },simplify = FALSE, USE.NAMES = TRUE)
 
+
+```
+
+
+```{r load_citys_states_regions}
+
+## Criar pasta de trabalho
+#pt <- openxlsx::createWorkbook()
+path_data <- system.file("data", "cidades.xlsx", package = "dataedittecnology")
+cidades <- openxlsx::read.xlsx(path_data)
 
 ```
 
@@ -201,7 +242,7 @@ df_sumario <- names(df_sumario_valid) |>
 #| column: screen-inset-right
 #| 
 for (i in names(df_sumario)) {
-  pander::pandoc.header(i, level = 3)
+  pander::pandoc.header(i, level = 4)
         pander::pandoc.table(
           df_sumario[[i]] |>
             #dplyr::select(ano, Regra, Total, contains("Ausente")) |>
@@ -217,6 +258,7 @@ for (i in names(df_sumario)) {
 }
 
 ```
+
 
 ```{r data_wrangling_valid_all}
 ### Valores Positivos
@@ -240,6 +282,12 @@ df_sumario_valid <- names(df_rules_valid_pos) |>
     res <- df_rules_valid_pos[[i]] |>
       dplyr::select(ano,uf,cod_regint,cod_mun,dplyr::starts_with("pos_")) |>
       tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "Regra", values_to = "resultado")
+    
+    res_aux <- df_rules_valid_pos[[i]] |>
+      dplyr::select(ano,uf,cod_regint,cod_mun,dplyr::starts_with("per_")) |>
+      tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "Regra", values_to = "resultado")
+    
+    res <- rbind(res,res_aux)
       return(res)
     }, simplify = FALSE, USE.NAMES = TRUE)
   
@@ -248,6 +296,7 @@ df_sumario_valid <- names(df_rules_valid_pos) |>
 df_sumario <- names(df_sumario_valid) |> 
   sapply(function(i){
     res <- df_sumario_valid[[i]] |>
+      dplyr::filter(grepl(pattern = "pos_",x = Regra)) |>
       dplyr::mutate(Regra = gsub(pattern = "pos_",replacement = "",x = Regra)) |>
       dplyr::group_by(ano, Regra) |> 
       dplyr::summarise(
@@ -258,13 +307,32 @@ df_sumario <- names(df_sumario_valid) |>
         `% Validada` = round((Validada / Total) * 100, 2),
         `% Suspeita` = round((Suspeita / (Total - Ausente) )* 100, 2),
         `% Ausente` = round((Ausente / Total) * 100, 2)
-        ) |> 
+      ) |> 
       dplyr::ungroup()
+    
+      res_aux <- df_sumario_valid[[i]] |>
+        dplyr::filter(grepl(pattern = "per_",x = Regra)) |>
+        dplyr::mutate(Regra = gsub(pattern = "per_",replacement = "",x = Regra)) |>
+        dplyr::group_by(ano, Regra) |> 
+        dplyr::summarise(
+          Total        = dplyr::n(),
+          Validada     = sum(!resultado, na.rm = TRUE),
+          Suspeita     = sum(resultado, na.rm = TRUE),
+          Ausente      = sum(is.na(resultado), na.rm = T),
+          `% Validada` = round((Validada / Total) * 100, 2),
+          `% Suspeita` = round((Suspeita / (Total - Ausente) )* 100, 2),
+          `% Ausente` = round((Ausente / Total) * 100, 2)
+        ) |> 
+        dplyr::ungroup()
+      
+      res <- rbind(res,res_aux)
+      return(res)
+        
     }, simplify = FALSE, USE.NAMES = TRUE)
 
 ```
 
-### Regras de validade
+### Demais regras de validade
 
 ```{r show_table_valid_rules_all, results='asis'}
 #| column: screen-inset-right
@@ -273,7 +341,7 @@ df_sumario <- names(df_sumario_valid) |>
 descricao <- c(
   # Casos mais comuns
   `1` = "Valor é ≥ 0",
-  #`2` = "Valor está dentro da categoria esperada",
+  `2` = "Valor está dentro da categoria esperada",
   `3` = "Valor está dentro da faixa esperada (0 a 100)"#,
   #`4` = "Valor é > 0" #,
   #`5` = "Valor está dentro da faixa esperada (0 a 1000)",
@@ -296,14 +364,14 @@ regra <- names(dados) |>
                      ) |>
        tidyr::pivot_longer(cols = !c(ano,uf, cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |> 
        dplyr::select(Regra)|> unique()
-     res <- res |> cbind( rep(descricao,nrow(res)) )|> dplyr::rename(`Descrição` = `rep(descricao, nrow(res))`)
+     res <- res |> cbind( rep(descricao[-2],nrow(res)) )|> dplyr::rename(`Descrição` = `rep(descricao[-2], nrow(res))`)
      return(res)
    }, simplify = FALSE, USE.NAMES = TRUE)
 
 
 #exibe a tabela com os resultados da regra de valores positivos
 for (i in names(df_sumario)) {
-  pander::pandoc.header(i, level = 3)
+  pander::pandoc.header(i, level = 4)
         pander::pandoc.table(
           df_sumario[[i]] |>
             dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
@@ -319,6 +387,115 @@ for (i in names(df_sumario)) {
 }
 
 ```
+
+```{r show_table_valid_locations_rules, results='asis'}
+#| column: screen-inset-right
+
+codigos <- data.frame(codigos_uf= as.character(cod_uf),uf = names(cod_uf), check.rows = F,row.names = NULL)
+
+df_rules_locations <- names(dados) |>
+   sapply(function(i){
+     variables <- unique(lista_dt[[i]]$nome_especificacao)
+     regint <- dados[[i]]$cod_regint
+     code_city <- dados[[i]]$cod_mun
+     
+     if(!is.na(regint[1])){ 
+       #res <- check_location(dados = dados,codigos = codigos,code = "cod_regint", i, variables = variables)
+       
+       res <- dados[[i]] |>
+         dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
+         dplyr::left_join(codigos) |>
+         dplyr::mutate(initial_code = substr(x = cod_regint, start = 1,stop = 2),
+                       resultado = ifelse(codigos_uf == initial_code, F, T) ) |>
+         dplyr::select(-initial_code,-codigos_uf) |>
+         tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun,resultado), names_to = "Regra", values_to = "valores")|>
+         dplyr::group_by(ano, uf) |>
+         dplyr::summarise(
+           Total        = dplyr::n(),
+           Validada     = sum(!resultado, na.rm = TRUE),
+           Suspeita     = sum(resultado, na.rm = TRUE),
+           `% Validada` = round((Validada / Total) * 100, 2),
+           `% Suspeita` = round((Suspeita / (Total ) )* 100, 2)
+         ) |>
+         dplyr::ungroup()
+       
+       }
+     
+     if(!is.na(code_city[1])){ 
+      # res <- check_location(dados = dados, codigos = codigos, code = "cod_mun", i, variables = variables)
+       
+       res <- dados[[i]] |>
+         dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
+         dplyr::left_join(codigos) |> ###### verificar a partir daqui
+         dplyr::mutate(initial_code = substr(x = cod_mun, start = 1,stop = 2),
+                       resultado = ifelse(codigos_uf == initial_code, F, T) ) |>
+         dplyr::select(-initial_code, -codigos_uf) |>
+         tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun,resultado), names_to = "Regra", values_to = "valores")|>
+         dplyr::group_by(ano, uf) |>
+         dplyr::summarise(
+           Total        = dplyr::n(),
+           Validada     = sum(!resultado, na.rm = TRUE),
+           Suspeita     = sum(resultado, na.rm = TRUE),
+           `% Validada` = round((Validada / Total) * 100, 2),
+           `% Suspeita` = round((Suspeita / (Total ) )* 100, 2)
+         ) |>
+         dplyr::ungroup()
+     }
+     
+     if(is.na(regint[1]) && is.na(code_city[1])){
+       res <- dados[[i]] |>
+         dplyr::select(ano,uf, cod_regint, cod_mun, variables)
+     }
+     
+     return(res)
+   }, simplify = FALSE, USE.NAMES = TRUE)
+
+
+#exibe a tabela com os resultados da regra de valores positivos
+for (i in names(df_rules_locations)) {
+  pander::pandoc.header(i, level = 4)
+        pander::pandoc.table(
+          df_sumario[[i]] |>
+            dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
+             dplyr::filter(ano == max(ano) ) |>
+            dplyr::rename(Ano = ano) |>
+            dplyr::arrange(desc(Ano)),
+          decimal.mark = ",", 
+          big.mark     = ".", 
+          round        = 2,
+          split.table  = Inf
+      )
+        cat("\\pagebreak\n")
+}
+
+```
+
+### Validade das localizações
+
+```{r show_table_location_valid_rules, results='asis'}
+#exibe a tabela com os resultados da regra de localizacao
+
+locais <- gsub(".*_", "", names(df_rules_locations))
+df_sumario <- df_rules_locations[!grepl(pattern ="br|uf",x = locais)]
+
+for (i in names(df_sumario)) {
+  pander::pandoc.header(i, level = 4)
+        pander::pandoc.table(
+          df_sumario[[i]] |>
+            dplyr::filter(ano == max(ano) ) |>
+            dplyr::rename(Ano = ano) |>
+            dplyr::arrange(desc(Ano)),
+          decimal.mark = ",", 
+          big.mark     = ".", 
+          round        = 2,
+          split.table  = Inf
+      )
+        cat("\\pagebreak\n")
+}
+
+```
+
+
 
 ### Regras de Distribuição
 
@@ -397,15 +574,6 @@ for (i in names(df_sumario)) {
 
 ```
 
-
-```{r excel_create_wb}
-
-## Criar pasta de trabalho
-#pt <- openxlsx::createWorkbook()
-path_data <- system.file("data", "cidades.xlsx", package = "dataedittecnology")
-cidades <- openxlsx::read.xlsx(path_data)
-
-```
 
 ```{r df_build_viol_valid}
 
