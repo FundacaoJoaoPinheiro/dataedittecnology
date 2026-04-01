@@ -401,7 +401,6 @@ df_rules_locations <- names(dados) |>
      
      if(!is.na(regint[1])){ 
        #res <- check_location(dados = dados,codigos = codigos,code = "cod_regint", i, variables = variables)
-       
        res <- dados[[i]] |>
          dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
          dplyr::left_join(codigos) |>
@@ -423,7 +422,6 @@ df_rules_locations <- names(dados) |>
      
      if(!is.na(code_city[1])){ 
       # res <- check_location(dados = dados, codigos = codigos, code = "cod_mun", i, variables = variables)
-       
        res <- dados[[i]] |>
          dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
          dplyr::left_join(codigos) |> ###### verificar a partir daqui
@@ -449,8 +447,10 @@ df_rules_locations <- names(dados) |>
      
      return(res)
    }, simplify = FALSE, USE.NAMES = TRUE)
+```
 
 
+```{r table_data_wranging}
 #exibe a tabela com os resultados da regra de valores positivos
 for (i in names(df_rules_locations)) {
   pander::pandoc.header(i, level = 4)
