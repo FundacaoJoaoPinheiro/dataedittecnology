@@ -734,6 +734,10 @@ df_obs_valid <- df_obs_valid[index]
 nom <- gsub(".*[([:upper:])]_", "val_NA_", names(df_obs_valid))
 names(df_obs_valid) <- nom
 
+```
+
+
+```{r df_build_val_pos}
 
 df_obs_validade <- names(df_rules_valid_pos)|>
   sapply(function(i){
