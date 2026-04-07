@@ -10,8 +10,8 @@
 #'
 #' @returns data set with results
 
-check_location <- function(dados,codigos, code, i, variables){
-  res <- dados[[i]] |>
+check_location <- function(dados,codigos, code, variables){
+  res <- dados |>
     dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
     dplyr::left_join(codigos) |>
     dplyr::mutate(initial_code = substr(x = !!code, start = 1,stop = 2),
