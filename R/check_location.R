@@ -5,7 +5,6 @@
 #' @param dados data set containing variable
 #' @param codigos vector containing codes of states
 #' @param code column from the data set code e.g. 'cod_regint' or 'cod_mun'
-#' @param i data set name
 #' @param variables names of variables from data set
 #'
 #' @returns data set with results

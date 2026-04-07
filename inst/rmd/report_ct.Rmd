@@ -261,7 +261,7 @@ for (i in names(df_sumario)) {
 
 
 ```{r data_manipulation_valid_all}
-### Valores Positivos
+### 
 df_rules_valid_pos <- names(dados) |>
    sapply(function(i){
      variables <- unique(lista_dt[[i]]$nome_especificacao)
@@ -290,100 +290,21 @@ df_sumario_valid <- names(df_rules_valid_pos) |>
     res <- rbind(res,res_aux)
       return(res)
     }, simplify = FALSE, USE.NAMES = TRUE)
-  
 
-## lista com um sumário dos resultados
-df_sumario <- names(df_sumario_valid) |> 
-  sapply(function(i){
-    res <- df_sumario_valid[[i]] |>
-      dplyr::filter(grepl(pattern = "pos_",x = Regra)) |>
-      dplyr::mutate(Regra = gsub(pattern = "pos_",replacement = "",x = Regra)) |>
-      dplyr::group_by(ano, Regra) |> 
-      dplyr::summarise(
-        Total        = dplyr::n(),
-        Validada     = sum(!resultado, na.rm = T),
-        Ausente      = sum(resultado, na.rm = T),
-        `% Validada` = round((Validada / Total) * 100, 2),
-        `% Ausente` = round((Ausente / Total) * 100, 2)
-        ) |> 
-      dplyr::ungroup()
-    }, simplify = FALSE, USE.NAMES = TRUE)
 
 ```
 
 ### Regras
 
-```{r show_rules_all, results='asis'}
-#| column: screen-inset-right
-
-# Mapear variável e descrição de sua respectiva regra de validade para ser apresentado na tabela.
-descricao <- c(
-  # Casos mais comuns
-  `1` = "Valor é ≥ 0"#,
-  #`2` = "Valor está dentro da categoria esperada",
-  #`3` = "Valor está dentro da faixa esperada (0 a 100)",
-  #`4` = "Valor é > 0" #,
-  #`5` = "Valor está dentro da faixa esperada (0 a 1000)",
-  #`6` = "Valor está dentro da faixa esperada (0 a 10000)",
-  #`7` = "Valor está dentro da faixa esperada (0 a 100000)",
-  # Casos especiais
-  #`8` = "Valor é ≥ 1", # SP_PM e SP_PMPC
-  #`9` = "Valor é ≥ 8", # SP_PM1
-  #`10` = "Valor está dentro da faixa esperada (-100 a 100)"
-)
-
-regra <- names(dados) |>
-   sapply(function(i){
-     variables <- unique(lista_dt[[i]]$nome_especificacao)
-     res <- dados[[i]] |>
-       dplyr::select(ano,uf,cod_mun,variables) |> 
-       dplyr::mutate(dplyr::across(dplyr::all_of(variables), .fns = ~c(.x), .names = "{.col}")) |>
-       dplyr::select(ano,uf,cod_mun,variables
-                     #dplyr::starts_with("VI_")
-                     ) |>
-       tidyr::pivot_longer(cols = !c(ano,uf,cod_mun), names_to = "Regra", values_to = "resultado") |> 
-       dplyr::select(Regra)|> unique()|> cbind(descricao)
-     return(res)
-   }, simplify = FALSE, USE.NAMES = TRUE)
-
-
-
-for (i in names(df_sumario)) {
-  pander::pandoc.header(i, level = 3)
-        pander::pandoc.table(
-          df_sumario[[i]] |>
-            dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
-             dplyr::filter(ano == max(ano) ) |>
-            dplyr::rename(Ano = ano) |>
-            dplyr::arrange(desc(Ano)),
-          decimal.mark = ",", 
-          big.mark     = ".", 
-          round        = 2,
-          split.table  = Inf
-      )
-        cat("\\pagebreak\n")
-}
-
-```
-
 ```{r data_wrangling_valid_all}
-### Valores Positivos
-df_rules_valid_pos <- names(dados) |>
-   sapply(function(i){
-     variables <- unique(lista_dt[[i]]$nome_especificacao)
-     res <- dados[[i]] |>
-       dplyr::select(ano,uf,cod_mun,variables) |> 
-       dplyr::mutate(dplyr::across(dplyr::all_of(variables), .fns = ~ifelse(.x >= 0,F,T), .names = "{.col}"))
-     return(res)
-   }, simplify = FALSE, USE.NAMES = TRUE)
 
 ## Transformação dos resultados
 df_sumario_valid <- names(df_rules_valid_pos) |> 
   sapply(function(i){
     variables <- unique(lista_dt[[i]]$nome_especificacao)
     res <- df_rules_valid_pos[[i]] |>
-      dplyr::select(ano,uf,cod_mun,variables) |>
-      tidyr::pivot_longer(cols = !c(ano,uf,cod_mun), names_to = "Regra", values_to = "resultado")
+      #dplyr::select(ano,uf,cod_regint, cod_mun,dplyr::ends_with(variables)) |>
+      tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun,variables), names_to = "Regra", values_to = "resultado")
       return(res)
     }, simplify = FALSE, USE.NAMES = TRUE)
   
@@ -391,7 +312,9 @@ df_sumario_valid <- names(df_rules_valid_pos) |>
 ## lista com um sumário dos resultados
 df_sumario <- names(df_sumario_valid) |> 
   sapply(function(i){
-    res <- df_sumario_valid[[i]] |>
+    res <- df_sumario_valid[[i]] |> 
+      dplyr::filter(grepl(pattern = "pos_",x = Regra)) |>
+      dplyr::mutate(Regra = gsub(pattern = "pos_",replacement = "",x = Regra)) |>
       dplyr::group_by(ano, Regra) |> 
       dplyr::summarise(
         Total        = dplyr::n(),
@@ -463,7 +386,7 @@ regra <- names(dados) |>
    }, simplify = FALSE, USE.NAMES = TRUE)
 
 
-#exibe a tabela com os resultados da regra de valores positivos
+#exibe a tabela com os resultados da regra de valores positivos ou percentual
 for (i in names(df_sumario)) {
   pander::pandoc.header(i, level = 4)
         pander::pandoc.table(
@@ -494,7 +417,7 @@ df_rules_locations <- names(dados) |>
      code_city <- dados[[i]]$cod_mun
      
      if(!is.na(regint[1])){ 
-       #res <- check_location(dados = dados,codigos = codigos,code = "cod_regint", i, variables = variables)
+       #res <- check_location(dados = dados,codigos = codigos,code = "cod_regint", variables = variables)
        res <- dados[[i]] |>
          dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
          dplyr::left_join(codigos) |>
@@ -518,7 +441,7 @@ df_rules_locations <- names(dados) |>
       # res <- check_location(dados = dados, codigos = codigos, code = "cod_mun", i, variables = variables)
        res <- dados[[i]] |>
          dplyr::select(ano,uf, cod_regint, cod_mun, variables) |>
-         dplyr::left_join(codigos) |> ###### verificar a partir daqui
+         dplyr::left_join(codigos) |> 
          dplyr::mutate(initial_code = substr(x = cod_mun, start = 1,stop = 2),
                        resultado = ifelse(codigos_uf == initial_code, F, T) ) |>
          dplyr::select(-initial_code, -codigos_uf) |>
@@ -545,7 +468,7 @@ df_rules_locations <- names(dados) |>
 
 
 ```{r table_data_wranging}
-#exibe a tabela com os resultados da regra de valores positivos
+#exibe a tabela com os resultados da regra 
 for (i in names(df_rules_locations)) {
   pander::pandoc.header(i, level = 4)
         pander::pandoc.table(
@@ -565,6 +488,8 @@ for (i in names(df_rules_locations)) {
 ```
 
 ### Validade das localizações
+
+Exibição de indicadores por região intermediária ou por municipios.
 
 ```{r show_location_rules, results='asis'}
 #exibe a tabela com os resultados da regra de localizacao

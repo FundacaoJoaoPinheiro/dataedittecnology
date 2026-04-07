@@ -14,8 +14,6 @@ check_location(dados, codigos, code, variables)
 \item{code}{column from the data set code e.g. 'cod_regint' or 'cod_mun'}
 
 \item{variables}{names of variables from data set}
-
-\item{i}{data set name}
 }
 \value{
 data set with results
