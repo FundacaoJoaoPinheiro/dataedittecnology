@@ -325,7 +325,7 @@ df_sumario <- names(df_sumario_valid) |>
         `% Suspeita` = round((Suspeita / (Total - Ausente) )* 100, 2),
         `% Ausente` = round((Ausente / Total) * 100, 2)
       ) |> 
-      dplyr::ungroup()
+      dplyr::ungroup() |> dplyr::mutate(aux = "pos")
     
       res_aux <- df_sumario_valid[[i]] |>
         dplyr::filter(grepl(pattern = "per_",x = Regra)) |>
@@ -340,7 +340,7 @@ df_sumario <- names(df_sumario_valid) |>
           `% Suspeita` = round((Suspeita / (Total - Ausente) )* 100, 2),
           `% Ausente` = round((Ausente / Total) * 100, 2)
         ) |> 
-        dplyr::ungroup()
+        dplyr::ungroup() |> dplyr::mutate(aux = "per")
       
       res <- rbind(res,res_aux)
       return(res)
@@ -370,28 +370,31 @@ descricao <- c(
   #`10` = "Valor está dentro da faixa esperada (-100 a 100)"
 )
 
-regra <- names(dados) |>
-   sapply(function(i){
-     variables <- unique(lista_dt[[i]]$nome_especificacao)
-     res <- dados[[i]] |>
-       dplyr::select(ano,uf, cod_regint, cod_mun, variables) |> 
-       dplyr::mutate(dplyr::across(dplyr::all_of(variables), .fns = ~c(.x), .names = "{.col}")) |>
-       dplyr::select(ano,uf, cod_regint,cod_mun,variables
-                     #dplyr::starts_with("VI_")
-                     ) |>
-       tidyr::pivot_longer(cols = !c(ano,uf, cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |> 
-       dplyr::select(Regra)|> unique()
-     res <- res |> cbind( rep(descricao[-2],nrow(res)) )|> dplyr::rename(`Descrição` = `rep(descricao[-2], nrow(res))`)
-     return(res)
-   }, simplify = FALSE, USE.NAMES = TRUE)
+# regra <- names(dados) |>
+#    sapply(function(i){
+#      variables <- unique(lista_dt[[i]]$nome_especificacao)
+#      res <- dados[[i]] |>
+#        dplyr::select(ano,uf, cod_regint, cod_mun, variables) |> 
+#        dplyr::mutate(dplyr::across(dplyr::all_of(variables), .fns = ~c(.x), .names = "{.col}")) |>
+#        dplyr::select(ano,uf, cod_regint,cod_mun,variables
+#                      #dplyr::starts_with("VI_")
+#                      ) |>
+#        tidyr::pivot_longer(cols = !c(ano,uf, cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |> 
+#        dplyr::select(Regra)|> unique()
+#      res <- res |> cbind( rep(descricao[-2],nrow(res)) )|> dplyr::rename(`Descrição` = `rep(descricao[-2], nrow(res))`)
+#      return(res)
+#    }, simplify = FALSE, USE.NAMES = TRUE)
 
 
 #exibe a tabela com os resultados da regra de valores positivos ou percentual
 for (i in names(df_sumario)) {
   pander::pandoc.header(i, level = 4)
         pander::pandoc.table(
-          df_sumario[[i]] |>
-            dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
+          df_sumario[[i]] |> 
+            dplyr::filter(aux == "pos") |> 
+            dplyr::select(-aux)|>
+            dplyr::mutate(`Descrição` = descricao[1]) |>
+            #dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
              dplyr::filter(ano == max(ano) ) |>
             dplyr::rename(Ano = ano) |>
             dplyr::arrange(desc(Ano)),
@@ -401,6 +404,21 @@ for (i in names(df_sumario)) {
           split.table  = Inf
       )
         cat("\\pagebreak\n")
+        
+        pander::pandoc.table(
+          df_sumario[[i]] |> 
+            dplyr::filter(aux == "per") |> 
+            dplyr::select(-aux)|>
+            dplyr::mutate(`Descrição` = descricao[3]) |>
+            #dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
+            dplyr::filter(ano == max(ano) ) |>
+            dplyr::rename(Ano = ano) |>
+            dplyr::arrange(desc(Ano)),
+          decimal.mark = ",", 
+          big.mark     = ".", 
+          round        = 2,
+          split.table  = Inf
+      )
 }
 
 ```
@@ -466,26 +484,6 @@ df_rules_locations <- names(dados) |>
    }, simplify = FALSE, USE.NAMES = TRUE)
 ```
 
-
-```{r table_data_wranging}
-#exibe a tabela com os resultados da regra 
-for (i in names(df_rules_locations)) {
-  pander::pandoc.header(i, level = 4)
-        pander::pandoc.table(
-          df_sumario[[i]] |>
-            dplyr::left_join(regra[[i]], by = dplyr::join_by(Regra == Regra)) |>
-             dplyr::filter(ano == max(ano) ) |>
-            dplyr::rename(Ano = ano) |>
-            dplyr::arrange(desc(Ano)),
-          decimal.mark = ",", 
-          big.mark     = ".", 
-          round        = 2,
-          split.table  = Inf
-      )
-        cat("\\pagebreak\n")
-}
-
-```
 
 ### Validade das localizações
 
@@ -673,8 +671,8 @@ df_obs_validade <- names(df_rules_valid_pos)|>
       dplyr::mutate(Regra = gsub(pattern = "pos_",replacement = "",x = Regra)) 
     
     res <- df_rules_valid_pos[[i]] |>
-      dplyr::select(ano,uf,cod_regint,cod_mun, dplyr::starts_with("pos_")) |> 
-      tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |>
+      dplyr::select(ano,uf,cod_regint,cod_mun, variables) |> 
+      tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |> 
       dplyr::left_join(res_aux) |> 
       dplyr::filter(obs_suspeita)
     return(res)
@@ -702,7 +700,7 @@ df_obs_validade <- names(df_rules_valid_pos)|>
       dplyr::mutate(Regra = gsub(pattern = "per_",replacement = "",x = Regra)) 
     
     res <- df_rules_valid_pos[[i]] |>
-      dplyr::select(ano,uf,cod_regint,cod_mun, dplyr::starts_with("per_")) |> 
+      dplyr::select(ano,uf,cod_regint,cod_mun, variables) |> 
       tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |>
       dplyr::left_join(res_aux) |> 
       dplyr::filter(obs_suspeita)
