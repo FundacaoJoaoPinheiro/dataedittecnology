@@ -313,7 +313,7 @@ df_sumario <- names(df_sumario_valid) |>
 
 ### Regras
 
-```{r show_table_valid_rules_all, results='asis'}
+```{r show_val_rules_all, results='asis'}
 #| column: screen-inset-right
 
 # Mapear variável e descrição de sua respectiva regra de validade para ser apresentado na tabela.
@@ -428,7 +428,7 @@ df_sumario <- names(df_sumario_valid) |>
 
 ### Demais regras de validade
 
-```{r show_table_valid_rules_all, results='asis'}
+```{r show_val_rules_all, results='asis'}
 #| column: screen-inset-right
 
 # Mapear variável e descrição de sua respectiva regra de validade para ser apresentado na tabela.
@@ -482,7 +482,7 @@ for (i in names(df_sumario)) {
 
 ```
 
-```{r show_table_valid_locations_rules, results='asis'}
+```{r show_tab_locations_rules, results='asis'}
 #| column: screen-inset-right
 
 codigos <- data.frame(codigos_uf= as.character(cod_uf),uf = names(cod_uf), check.rows = F,row.names = NULL)
@@ -566,7 +566,7 @@ for (i in names(df_rules_locations)) {
 
 ### Validade das localizações
 
-```{r show_table_location_rules, results='asis'}
+```{r show_location_rules, results='asis'}
 #exibe a tabela com os resultados da regra de localizacao
 
 locais <- gsub(".*_", "", names(df_rules_locations))
