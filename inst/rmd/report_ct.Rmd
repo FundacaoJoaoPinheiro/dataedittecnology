@@ -195,7 +195,7 @@ for (i in names(dados)) {
 
 ## Regras de validade
 
-```{r data_wrangling_valid_NA}
+```{r data_wrangling_NA}
 ### Valores ausentes
 df_rules_valid_na <- names(dados) |>
    sapply(function(i){
@@ -238,7 +238,7 @@ df_sumario <- names(df_sumario_valid) |>
 
 ### Valores ausentes
 
-```{r show_table_valid_na_all, results='asis'}
+```{r show_valid_na_all, results='asis'}
 #| column: screen-inset-right
 #| 
 for (i in names(df_sumario)) {
@@ -428,7 +428,7 @@ df_sumario <- names(df_sumario_valid) |>
 
 ### Demais regras de validade
 
-```{r table_valid_all, results='asis'}
+```{r show_table_valid_rules_all, results='asis'}
 #| column: screen-inset-right
 
 # Mapear variável e descrição de sua respectiva regra de validade para ser apresentado na tabela.
@@ -482,7 +482,7 @@ for (i in names(df_sumario)) {
 
 ```
 
-```{r table_locations_rules, results='asis'}
+```{r show_table_valid_locations_rules, results='asis'}
 #| column: screen-inset-right
 
 codigos <- data.frame(codigos_uf= as.character(cod_uf),uf = names(cod_uf), check.rows = F,row.names = NULL)
@@ -762,7 +762,7 @@ df_obs_valid <- append(df_obs_valid, df_obs_validade)
 ```
 
 
-```{r df_build_viol_validade_per}
+```{r data_viol_valid_per}
 
 df_obs_validade <- names(df_rules_valid_pos)|>
   sapply(function(i){
