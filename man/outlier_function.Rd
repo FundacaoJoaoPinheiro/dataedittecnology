@@ -4,14 +4,10 @@
 \alias{outlier_function}
 \title{Detect outlier}
 \usage{
-outlier_function(variable, a = -4, b = 3)
+outlier_function(variable)
 }
 \arguments{
 \item{variable}{quantitative variable}
-
-\item{a}{constant}
-
-\item{b}{constant}
 }
 \value{
 Vector with TRUE or FALSE

@@ -20,10 +20,14 @@ GitHub with:
 ``` r
 # Install the 'remotes' package if you haven't already
 install.packages("remotes")
+install.packages("pander")
 
 # Install the 'dataedittecnology' package
 remotes::install_github("FundacaoJoaoPinheiro/dataedittecnology")
 ```
+
+If the information apperar like the image below, press 3 and enter to
+continue the installation. ![](imagem1.jpeg)
 
 ## Usage Example
 
