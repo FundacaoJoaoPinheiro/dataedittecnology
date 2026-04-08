@@ -92,7 +92,7 @@ cod_uf <- c(
 
 
 ```{r import_data}
-fator <- 1.15
+fator <- 0.85
 
 lista_dt <- lapply(params$data,readRDS)
 dados <- names(lista_dt)|> 
@@ -527,8 +527,8 @@ df_rules_dist <- names(dados) |>
        dplyr::mutate(dplyr::across(dplyr::all_of(variables),
                                    .fns = list(outlier = ~outlier_function(.x),
                                                mediana_movel = ~roll_median(.x, fator = fator),
-                                               min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T ),
-                                               max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
+                                               min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
+                                               #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
                                                ),
                                    .names = "{.fn}_{.col}")) |>
        dplyr::ungroup()

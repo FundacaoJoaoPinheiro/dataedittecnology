@@ -10,6 +10,6 @@
 #' @return Vector with TRUE or FALSE
 
 roll_median <- function(variable, fator){
-  res <- dplyr::if_else(variable <= (fator * zoo::rollmedian(variable, k = 3, fill = NA, align = "right")), F, T)
+  res <- dplyr::if_else(variable > (fator * zoo::rollmedian(variable, k = 3, fill = NA, align = "right")), F, T)
   return(res)
 }
