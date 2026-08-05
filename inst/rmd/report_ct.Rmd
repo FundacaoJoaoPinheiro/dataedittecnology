@@ -89,8 +89,6 @@ cod_uf <- c(
   "DF" = 53)
 ```
 
-
-
 ```{r import_data}
 fator <- 0.85
 
@@ -108,7 +106,6 @@ dados <- names(lista_dt)|>
 
 ```
 
-
 ```{r load_citys_states_regions}
 
 ## Criar pasta de trabalho
@@ -122,29 +119,29 @@ cidades <- openxlsx::read.xlsx(path_data)
 
 As tabelas a seguir apresentam um resumo descritivo dos indicadores analisados, fornecendo uma visão abrangente das características dos dados. Os cálculos foram realizados em função do ano. As informações inclusas abrangem:
 
--   **Quantidade de Valores (N):** Indica o número total de observações presentes no conjunto de dados para cada indicador.
+- **Quantidade de Valores (N):** Indica o número total de observações presentes no conjunto de dados para cada indicador.
 
--   **Valor Mínimo:** Representa o menor valor observado para o indicador.
+- **Valor Mínimo:** Representa o menor valor observado para o indicador.
 
--   **Valor da Média:** Indica a média aritmética dos valores do indicador, fornecendo uma medida central da tendência dos dados.
+- **Valor da Média:** Indica a média aritmética dos valores do indicador, fornecendo uma medida central da tendência dos dados.
 
--   **Valor da Mediana:** Representa o valor que divide o conjunto de dados ordenados em duas metades de igual tamanho, sendo útil para lidar com casos com *outliers*.
+- **Valor da Mediana:** Representa o valor que divide o conjunto de dados ordenados em duas metades de igual tamanho, sendo útil para lidar com casos com *outliers*.
 
--   **Valor Máximo:** Indica o maior valor observado para o indicador.
+- **Valor Máximo:** Indica o maior valor observado para o indicador.
 
--   **Desvio Padrão (D.P.):** Mede a dispersão dos dados em relação à média, quantificando a variabilidade presente no conjunto.
+- **Desvio Padrão (D.P.):** Mede a dispersão dos dados em relação à média, quantificando a variabilidade presente no conjunto.
 
--   **Coeficiente de Variação (C.V.):** Expressa a razão entre o desvio padrão e a média, em porcentagem, fornecendo uma medida relativa da dispersão dos dados em relação à média.
+- **Coeficiente de Variação (C.V.):** Expressa a razão entre o desvio padrão e a média, em porcentagem, fornecendo uma medida relativa da dispersão dos dados em relação à média.
 
--   **Quantidade de Zeros:** Indica o número de observações com valor igual a zero para o indicador.
+- **Quantidade de Zeros:** Indica o número de observações com valor igual a zero para o indicador.
 
--   **Quantidade de Dados Ausentes:** Representa o número de observações com valores ausentes para o indicador.
+- **Quantidade de Dados Ausentes:** Representa o número de observações com valores ausentes para o indicador.
 
 **Observações Importantes:**
 
--   A análise de *outliers* (valores atípicos) não foi realizada nesta tabela descritiva. Para uma avaliação mais completa da qualidade dos dados, recomenda-se a análise de *outliers* e a verificação de possíveis inconsistências nos valores apresentados anteriormente neste documento.
+- A análise de *outliers* (valores atípicos) não foi realizada nesta tabela descritiva. Para uma avaliação mais completa da qualidade dos dados, recomenda-se a análise de *outliers* e a verificação de possíveis inconsistências nos valores apresentados anteriormente neste documento.
 
--   A interpretação das medidas descritivas deve ser feita em conjunto com o conhecimento do contexto dos indicadores e dos objetivos da análise.
+- A interpretação das medidas descritivas deve ser feita em conjunto com o conhecimento do contexto dos indicadores e dos objetivos da análise.
 
 Ao analisar esta tabela, é possível obter uma compreensão inicial das características dos dados, identificando padrões, tendências e possíveis discrepâncias. As informações aqui apresentadas servem como base para análises estatísticas mais aprofundadas, auxiliando na tomada de decisões e na formulação de conclusões relevantes.
 
@@ -258,7 +255,6 @@ for (i in names(df_sumario)) {
 }
 
 ```
-
 
 ```{r data_manipulation_valid_all}
 ### 
@@ -484,7 +480,6 @@ df_rules_locations <- names(dados) |>
    }, simplify = FALSE, USE.NAMES = TRUE)
 ```
 
-
 ### Validade das localizações
 
 Exibição de indicadores por região intermediária ou por municipios.
@@ -512,8 +507,6 @@ for (i in names(df_sumario)) {
 
 ```
 
-
-
 ### Regras de Distribuição
 
 ```{r data_rules_dist}
@@ -526,7 +519,7 @@ df_rules_dist <- names(dados) |>
        dplyr::group_by(uf, cod_regint, cod_mun)|>
        dplyr::mutate(dplyr::across(dplyr::all_of(variables),
                                    .fns = list(outlier = ~outlier_function(.x),
-                                               mediana_movel = ~roll_median(.x, fator = fator),
+                                               mediana_movel = ~roll_median(dplyr::lag(.x), fator = fator),
                                                min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
                                                #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
                                                ),
@@ -590,7 +583,6 @@ for (i in names(df_sumario)) {
 }
 
 ```
-
 
 ```{r df_build_viol_valid}
 
@@ -659,7 +651,6 @@ names(df_obs_valid) <- nom
 
 ```
 
-
 ```{r df_build_val_pos}
 
 df_obs_validade <- names(df_rules_valid_pos)|>
@@ -687,7 +678,6 @@ names(df_obs_validade) <- nom
 df_obs_valid <- append(df_obs_valid, df_obs_validade)
 
 ```
-
 
 ```{r data_viol_valid_per}
 
@@ -717,7 +707,6 @@ df_obs_valid <- append(df_obs_valid, df_obs_validade)
 
 ```
 
-
 ```{r df_build_viol_dist}
 
 df_obs_dist <- names(df_rules_dist)|>
@@ -746,7 +735,6 @@ names(df_obs_dist) <- nom
 df_obs_dist <- append(df_obs_valid, df_obs_dist)
 
 ```
-
 
 ```{r excel_save_wb}
 #openxlsx::saveWorkbook(pt, "ct_violacoes.xlsx", overwrite = T)
