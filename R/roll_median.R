@@ -7,9 +7,9 @@
 #'
 #' @import zoo
 #' @importFrom zoo rollmedian
-#' @return Vector with TRUE or FALSE
+#' @return Vector with the roll medians
 
 roll_median <- function(variable, fator){
-  res <- dplyr::if_else(variable < fator*zoo::rollmedian(variable, k = 3, fill = NA, align = "right"), T, F)
+  res <-fator*zoo::rollmedian(variable, k = 3, fill = NA, align = "right")
   return(res)
 }
