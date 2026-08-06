@@ -520,7 +520,7 @@ df_rules_dist <- names(dados) |>
        dplyr::mutate(dplyr::across(dplyr::all_of(variables),
                                    .fns = list(outlier = ~outlier_function(.x),
                                                mediana_movel = ~ifelse(.x < roll_median(dplyr::lag(.x), fator = fator), T, F),
-                                               min = ~ifelse(.x < min(dplyr::lag(.x), na.rm = T), T, F )#,
+                                               min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
                                                #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
                                                ),
                                    .names = "{.fn}_{.col}")) |>
