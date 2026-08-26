@@ -4,7 +4,12 @@
 \alias{creating_report}
 \title{Creating_report}
 \usage{
-creating_report(mydir = getwd())
+creating_report(
+  mydir = getwd(),
+  data_path = NULL,
+  fator_mediana = 0.2,
+  regras = NULL
+)
 }
 \arguments{
 \item{mydir}{Output directory}

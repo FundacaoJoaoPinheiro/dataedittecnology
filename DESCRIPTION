@@ -17,11 +17,13 @@ Imports:
     pandoc,
     plotly,
     quarto,
+    readr,
     rlang,
     rmarkdown,
     robustbase,
     stringr,
     tidyr,
+    tools,
     utils,
     validate,
     zoo

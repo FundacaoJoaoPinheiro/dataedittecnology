@@ -4,7 +4,6 @@
 #'
 #' @param variable A variable representing a series of observations.
 #' @param fator A scale parameter.
-#'
 #' @import zoo
 #' @importFrom zoo rollmedian
 #' @return Vector with the roll medians

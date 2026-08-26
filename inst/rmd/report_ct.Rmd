@@ -33,6 +33,8 @@ execute:
   message: false
 params:
   data: file.rds
+  fator: k
+  distributional_check: regras
 output-file: "report_ct.html"
 ---
 
@@ -90,9 +92,9 @@ cod_uf <- c(
 ```
 
 ```{r import_data}
-fator <- 0.85
+fator1 <- 1 - params$fator
+lista_dt <- params$data
 
-lista_dt <- lapply(params$data,readRDS)
 dados <- names(lista_dt)|> 
   sapply(function(i){
     variables <- unique(lista_dt[[i]]$nome_especificacao)
@@ -365,21 +367,6 @@ descricao <- c(
   #`9` = "Valor é ≥ 8", # SP_PM1
   #`10` = "Valor está dentro da faixa esperada (-100 a 100)"
 )
-
-# regra <- names(dados) |>
-#    sapply(function(i){
-#      variables <- unique(lista_dt[[i]]$nome_especificacao)
-#      res <- dados[[i]] |>
-#        dplyr::select(ano,uf, cod_regint, cod_mun, variables) |> 
-#        dplyr::mutate(dplyr::across(dplyr::all_of(variables), .fns = ~c(.x), .names = "{.col}")) |>
-#        dplyr::select(ano,uf, cod_regint,cod_mun,variables
-#                      #dplyr::starts_with("VI_")
-#                      ) |>
-#        tidyr::pivot_longer(cols = !c(ano,uf, cod_regint,cod_mun), names_to = "Regra", values_to = "resultado") |> 
-#        dplyr::select(Regra)|> unique()
-#      res <- res |> cbind( rep(descricao[-2],nrow(res)) )|> dplyr::rename(`Descrição` = `rep(descricao[-2], nrow(res))`)
-#      return(res)
-#    }, simplify = FALSE, USE.NAMES = TRUE)
 
 
 #exibe a tabela com os resultados da regra de valores positivos ou percentual

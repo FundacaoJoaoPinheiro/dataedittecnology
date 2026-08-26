@@ -12,7 +12,7 @@ roll_median(variable, fator)
 \item{fator}{A scale parameter.}
 }
 \value{
-Vector with TRUE or FALSE
+Vector with the roll medians
 }
 \description{
 This function computes the roll median of ordered observations.
