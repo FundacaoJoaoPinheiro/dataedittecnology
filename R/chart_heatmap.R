@@ -25,7 +25,7 @@ chart_heatmap <- function(df){
     ggplot2::theme_minimal() +
     ggplot2::theme(
       legend.position = "None",
-      axis.text.x     = ggplot2::element_text(angle = 45, hjust = 1)
+      axis.text.x     = ggplot2::element_text(angle = 85, hjust = 1)
     )
   return(print(result))
 }
