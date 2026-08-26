@@ -498,6 +498,18 @@ for (i in names(df_sumario)) {
 
 ```{r data_rules_dist}
 
+fns_regras <- list(
+  outlier       = ~outlier_function(.x),
+  outlier_mean  = ~outlier_filter(.x),
+  mediana_movel = ~ifelse(.x < roll_median(dplyr::lag(.x), fator = fator1), T, F),
+  min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
+  #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
+  )
+
+regras_escolhidas <- params$distributional_check
+
+if(is.null(regras_escolhidas)){regras_escolhidas <- names(fns_regras)}
+
 df_rules_dist <- names(dados) |>
    sapply(function(i){
      variables <- unique(lista_dt[[i]]$nome_especificacao)
@@ -505,15 +517,30 @@ df_rules_dist <- names(dados) |>
        dplyr::select(ano,uf, cod_regint,cod_mun,variables) |> 
        dplyr::group_by(uf, cod_regint, cod_mun)|>
        dplyr::mutate(dplyr::across(dplyr::all_of(variables),
-                                   .fns = list(outlier = ~outlier_function(.x),
-                                               mediana_movel = ~ifelse(.x < roll_median(dplyr::lag(.x), fator = fator), T, F),
-                                               min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
-                                               #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
-                                               ),
+                                   .fns = fns_regras[regras_escolhidas], #<- filtra a lista aqui
                                    .names = "{.fn}_{.col}")) |>
        dplyr::ungroup()
      return(res)
    }, simplify = FALSE, USE.NAMES = TRUE)
+
+
+
+# df_rules_dist <- names(dados) |>
+#    sapply(function(i){
+#      variables <- unique(lista_dt[[i]]$nome_especificacao)
+#      res <- dados[[i]] |>
+#        dplyr::select(ano,uf, cod_regint,cod_mun,variables) |> 
+#        dplyr::group_by(uf, cod_regint, cod_mun)|>
+#        dplyr::mutate(dplyr::across(dplyr::all_of(variables),
+#                                    .fns = list(outlier = ~outlier_function(.x),
+#                                                mediana_movel = ~ifelse(.x < roll_median(dplyr::lag(.x), fator = fator), T, F),
+#                                                min = ~ifelse(.x >= min(dplyr::lag(.x), na.rm = T), F, T )#,
+#                                                #max = ~ifelse(.x <= max(dplyr::lag(.x), na.rm = T), F, T)
+#                                                ),
+#                                    .names = "{.fn}_{.col}")) |>
+#        dplyr::ungroup()
+#      return(res)
+#    }, simplify = FALSE, USE.NAMES = TRUE)
 
 
 ```
@@ -708,7 +735,14 @@ df_obs_dist <- names(df_rules_dist)|>
       dplyr::select(ano,uf,cod_regint,cod_mun, variables) |> 
       tidyr::pivot_longer(cols = !c(ano,uf,cod_regint,cod_mun), names_to = "variavel", values_to = "resultado") |>
       dplyr::left_join(res_aux) |> 
-      dplyr::filter(obs_suspeita) 
+      dplyr::filter(obs_suspeita)|>
+      unique()
+    
+    res <- res|> dplyr::select(-obs_suspeita)|>
+      dplyr::left_join(cidades|> 
+                         dplyr::select(codigo_ibge,nome_municipio),
+                       by = dplyr::join_by(cod_mun==codigo_ibge) ) |>
+          dplyr::select(ano,uf,cod_regint, cod_mun, nome_municipio, everything())
     
     return(res)
     }, simplify = FALSE, USE.NAMES = TRUE)

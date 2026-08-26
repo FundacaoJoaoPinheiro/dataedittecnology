@@ -8,6 +8,6 @@
 outlier_filter <- function(variable){
   limite_inf = mean(variable, na.rm = T) - 3*sd(variable, na.rm = T)
   limite_sup = mean(variable, na.rm = T) + 3*sd(variable, na.rm = T)
-  result = (variable < limite_inf | variable > limite_sup)
+  result = ifelse(variable < limite_inf | variable > limite_sup, T, F)
   return(result)
 }

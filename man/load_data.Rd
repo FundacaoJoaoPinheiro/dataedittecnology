@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_data.R
 \name{load_data}
 \alias{load_data}
-\title{Load data}
+\title{load_data}
 \usage{
 load_data(caminho, aba = 1, sep = ",", encoding = "UTF-8")
 }
@@ -20,10 +20,4 @@ A data.frame (or tibble) with the loaded data
 }
 \description{
 Loading data in .xlsx, .csv, .rds or txt.
-}
-\examples{
-dados <- carregar_dados("meus_dados.csv")
-dados <- carregar_dados("planilha.xlsx", aba = "Plan2")
-dados <- carregar_dados("objeto.rds")
-dados <- carregar_dados("dados.txt", sep = "\t")
 }
