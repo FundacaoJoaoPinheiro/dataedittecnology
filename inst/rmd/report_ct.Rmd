@@ -619,6 +619,7 @@ df_obs_valid <- names(df_rules_valid_na)|>
     
       if( uf_reg_mun[1] && uf_reg_mun[2]== F && uf_reg_mun[3] ){
         res <- res |> 
+          dplyr::mutate(cod_mun = as.character(cod_mun))|>
           dplyr::left_join(cidades,
                            by = dplyr::join_by(cod_mun==codigo_ibge,
                                                uf == uf_sigla)) |>
@@ -646,6 +647,7 @@ df_obs_valid <- names(df_rules_valid_na)|>
       
     if(uf_reg_mun[1] == F && uf_reg_mun[2] == F && uf_reg_mun[3] == F ){
       res <- res |>
+        dplyr::mutate(cod_mun = as.character(cod_mun))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(cod_mun==codigo_ibge,
                                              uf == uf_sigla,
