@@ -619,7 +619,8 @@ df_obs_valid <- names(df_rules_valid_na)|>
     
       if( uf_reg_mun[1] && uf_reg_mun[2]== F && uf_reg_mun[3] ){
         res <- res |> 
-          dplyr::mutate(cod_mun = as.character(cod_mun))|>
+          dplyr::mutate(cod_mun = as.character(cod_mun),
+                        uf = as.character(uf))|>
           dplyr::left_join(cidades,
                            by = dplyr::join_by(cod_mun==codigo_ibge,
                                                uf == uf_sigla)) |>
@@ -629,7 +630,8 @@ df_obs_valid <- names(df_rules_valid_na)|>
       }
     
     if( uf_reg_mun[1] && uf_reg_mun[2] && uf_reg_mun[3] == F){
-      res <- res |>
+      res <- res |> 
+        dplyr::mutate(uf = as.character(uf))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(uf == uf_sigla,
                                              cod_regint == regiao_intermediaria)) |>
@@ -639,6 +641,7 @@ df_obs_valid <- names(df_rules_valid_na)|>
     
     if(uf_reg_mun[1] && uf_reg_mun[2] == F && uf_reg_mun[3] == F ){
       res <- res |>
+        dplyr::mutate(uf = as.character(uf))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(uf == uf_sigla)) |>
         dplyr::select(-cod_regint, -cod_mun, nome_municipio)|>
@@ -647,7 +650,8 @@ df_obs_valid <- names(df_rules_valid_na)|>
       
     if(uf_reg_mun[1] == F && uf_reg_mun[2] == F && uf_reg_mun[3] == F ){
       res <- res |>
-        dplyr::mutate(cod_mun = as.character(cod_mun))|>
+        dplyr::mutate(cod_mun = as.character(cod_mun),
+                      uf = as.character(uf))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(cod_mun==codigo_ibge,
                                              uf == uf_sigla,
@@ -740,7 +744,9 @@ df_obs_dist <- names(df_rules_dist)|>
       dplyr::filter(obs_suspeita)|>
       unique()
     
-    res <- res|> dplyr::select(-obs_suspeita)|>
+    res <- res|> 
+      dplyr::mutate(cod_mun = as.character(cod_mun))|>
+      dplyr::select(-obs_suspeita)|>
       dplyr::left_join(cidades|> 
                          dplyr::select(codigo_ibge,nome_municipio),
                        by = dplyr::join_by(cod_mun==codigo_ibge) ) |>
