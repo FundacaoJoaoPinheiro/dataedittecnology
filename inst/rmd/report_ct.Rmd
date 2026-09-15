@@ -631,7 +631,8 @@ df_obs_valid <- names(df_rules_valid_na)|>
     
     if( uf_reg_mun[1] && uf_reg_mun[2] && uf_reg_mun[3] == F){
       res <- res |> 
-        dplyr::mutate(uf = as.character(uf))|>
+        dplyr::mutate(uf = as.character(uf),
+                      cod_regint = as.character(cod_regint))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(uf == uf_sigla,
                                              cod_regint == regiao_intermediaria)) |>
@@ -651,7 +652,8 @@ df_obs_valid <- names(df_rules_valid_na)|>
     if(uf_reg_mun[1] == F && uf_reg_mun[2] == F && uf_reg_mun[3] == F ){
       res <- res |>
         dplyr::mutate(cod_mun = as.character(cod_mun),
-                      uf = as.character(uf))|>
+                      uf = as.character(uf),
+                      cod_regint = as.character(cod_regint))|>
         dplyr::left_join(cidades,
                          by = dplyr::join_by(cod_mun==codigo_ibge,
                                              uf == uf_sigla,
